@@ -12,6 +12,9 @@
             background-color: #001f3f;
             color: white;
         }
+        .hidden {
+    display: none;
+}
         .container {
             max-width: 600px; 
             margin: auto;
@@ -50,7 +53,21 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-        
+            body {
+            font-family: Arial, sans-serif;
+            text-align: height;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .item {
+            margin: 10px 0;
+        }
         }
         .product img {
             width: 80%;
@@ -70,28 +87,47 @@
     </div>
     
     <div class="container" id="form-container">
-        <h2>Informe seus dados para iniciar</h2>
+        <h2>Informe seus dados para iniciar</h2>                       
         <input type="text" id="nome" placeholder="Seu Nome" required>
-        <input type="text" id="endereco" placeholder="Bairro, Rua, Número" required>
+        <input type="text" id="endereco" placeholder="Bairro, Rua, Número" required> 
         <input type="text" id="telefone" placeholder="Telefone" required>
         <select id="pagamento">
             <option value="">Selecione a forma de pagamento</option>
             <option value="Dinheiro">Dinheiro</option>
             <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Cartão de Débito">Cartão de Débito</option>
             <option value="Pix">Pix</option>
         </select>
         <button class="btn" onclick="iniciarCatalogo()">Continuar</button>
     </div>
+        
+
 
     <!-- Catálogo de Produtos -->
     <div id="catalog-container" class="hidden">
         <h2>Catálogo de Vendas</h2>
         <div class="container" id="catalog"></div>
-
+        <div class="container">
+            <h2>Escolha suas porções extras</h2>
+            <div class="item">
+                <label><input type="checkbox" id="vatapa" onchange="calcularTotal()"> Vatapá</label>
+            </div>
+            <div class="item">
+                <label><input type="checkbox" id="vinagrete" onchange="calcularTotal()"> Vinagrete</label>
+            </div>
+            <div class="item">
+                <label><input type="checkbox" id="farofa" onchange="calcularTotal()"> Farofa</label>
+            </div>
+            <div class="item">
+                <label><input type="checkbox" id="pao" onchange="calcularTotal()"> Pão</label>
+            </div>
+            <h3>Total de Extra: R$ <span id="total-extras">0,00</span></h3>
+        </div>
         <div class="cart">
             <h3>🛒 Carrinho</h3>
             <div id="cart-items"></div>
-            <p><strong>Total:</strong> R$ <span id="total-price">0.00</span></p>
+            <p><strong>Total:</strong> R$ <span id="total-price">0.00</span></p>       
+                     
             <button class="btn" onclick="finalizarPedido()">Finalizar Pedido no WhatsApp</button>
         </div>
     </div>
@@ -102,6 +138,7 @@
         let telefoneCliente = "";
         let pagamentoCliente = "";
         let carrinho = [];
+        const precoextra=5.0;
 
        
 
@@ -120,42 +157,40 @@
                 img: "https://claudia.abril.com.br/wp-content/uploads/2020/02/receber-agosto12.jpg?quality=70&strip=info&crop=1&resize=1080,565", 
                 acompanhamentos: "Uma porção de Vatapá, Baião de Dois, Farofa, Vinagrete e uma pequena porção de Banana Frita."
             }
+
+           
+
         ];
         
-        
-        function iniciarCatalogo() {
-            nomeCliente = document.getElementById("nome").value.trim();
-            enderecoCliente = document.getElementById("endereco").value.trim();
-            telefoneCliente = document.getElementById("telefone").value;
-            pagamentoCliente = document.getElementById("pagamento").value;
-
-            if (!nomeCliente || !enderecoCliente || !pagamentoCliente) {
-                alert("Por favor, preencha todos os campos antes de continuar.");
-                return;
+   
+    function adicionarExtrasAoCarrinho() {
+            // Verifica se o extra foi selecionado
+            if (document.getElementById("vatapa").checked) {
+                // Adiciona o extra "Vatapá" se não estiver no carrinho
+                if (!carrinho.some(item => item.id === 'vatapa')) {
+                    carrinho.push({ id: 'vatapa', nome: 'Vatapá', preco: precoextra, quantidade: 1 });
+                }
             }
-
-            document.getElementById("form-container").classList.add("hidden");
-            document.getElementById("catalog-container").classList.remove("hidden");
-            carregarProdutos();
+            if (document.getElementById("vinagrete").checked) {
+                if (!carrinho.some(item => item.id === 'vinagrete')) {
+                    carrinho.push({ id: 'vinagrete', nome: 'Vinagrete', preco: precoextra, quantidade: 1 });
+                }
+            }
+            if (document.getElementById("farofa").checked) {
+                if (!carrinho.some(item => item.id === 'farofa')) {
+                    carrinho.push({ id: 'farofa', nome: 'Farofa', preco: precoextra, quantidade: 1 });
+                }
+            }
+            if (document.getElementById("pao").checked) {
+                if (!carrinho.some(item => item.id === 'pao')) {
+                    carrinho.push({ id: 'pao', nome: 'Pão', preco: precoextra, quantidade: 1 });
+                }
+            }
+            atualizarCarrinho();
+            calcularTotal();
         }
 
-        function carregarProdutos() {
-            const catalog = document.getElementById("catalog");
-            catalog.innerHTML = "";  // Limpa o catálogo para exibir os produtos novamente
-
-            produtos.forEach(produto => {
-                catalog.innerHTML += `
-                    <div class="product">
-                        <img src="${produto.img}" alt="${produto.nome}">
-                        <h3>${produto.nome}</h3>
-                        <p><strong>Acompanhamentos:</strong> ${produto.acompanhamentos}</p>
-                        <p>R$ ${produto.preco.toFixed(2)}</p>
-                        <button class="btn" onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao Carrinho</button>
-                    </div>
-                `;
-            });
-        }
-
+        // Função para adicionar um prato principal ao carrinho
         function adicionarAoCarrinho(id) {
             const produto = produtos.find(p => p.id === id);
             const itemExistente = carrinho.find(item => item.id === id);
@@ -167,52 +202,131 @@
             }
 
             atualizarCarrinho();
+            calcularTotal();
         }
 
-        function removerDoCarrinho(id) {
-            carrinho = carrinho.filter(item => item.id !== id);
-            atualizarCarrinho();
-        }
-
+        // Função para atualizar o carrinho
         function atualizarCarrinho() {
             const cartItems = document.getElementById("cart-items");
             const totalPrice = document.getElementById("total-price");
+            const totalExtras = document.getElementById("total-extras");
 
             cartItems.innerHTML = "";
             let total = 0;
+            let totalExtrasValor = 0;
 
+            // Percorre os itens do carrinho para calcular os totais
             carrinho.forEach(item => {
                 total += item.preco * item.quantidade;
+                if (item.id === 'vatapa' || item.id === 'vinagrete' || item.id === 'farofa' || item.id === 'pao') {
+                    totalExtrasValor += item.preco * item.quantidade;
+                }
                 cartItems.innerHTML += `
                     <div class="cart-item">
                         <span>${item.nome} (${item.quantidade}x) - R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
-                        <button class="btn btn-remove" onclick="removerDoCarrinho(${item.id})">Remover</button>
+                        <button class="btn btn-remove" onclick="removerDoCarrinho('${item.id}')">Remover</button>
                     </div>
                 `;
             });
 
             totalPrice.innerText = total.toFixed(2);
+            totalExtras.innerText = totalExtrasValor.toFixed(2);
         }
 
+        // Função para calcular o total
+        function calcularTotal() {
+            let totalProdutos = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+            let totalFinal = totalProdutos;
+
+            document.getElementById("total-price").innerText = totalFinal.toFixed(2);
+        }
+
+        // Função para remover itens do carrinho
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            atualizarCarrinho();
+            calcularTotal();
+        }
+
+        // Função para finalizar o pedido
         function finalizarPedido() {
-            if (carrinho.length === 0) {
-                alert("Seu carrinho está vazio!");
-                return;
-            }
+    if (carrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+    }
 
-            let mensagem = `Olá! Quero fazer um pedido:\n`;
-            mensagem += `👤 Nome: ${nomeCliente}\n🏠 Endereço: ${enderecoCliente}\n📞Telefone: ${telefoneCliente}\n💳 Pagamento: ${pagamentoCliente}\n\n📌 Pedido:\n`;
+    let mensagem = `Olá! Quero fazer um pedido:\n`;
+    mensagem += `👤 Nome: ${nomeCliente}\n🏠 Endereço: ${enderecoCliente}\n📞Telefone: ${telefoneCliente}\n💳 Pagamento: ${pagamentoCliente}\n\n📌 Pedido:\n`;
 
-            carrinho.forEach(item => {
-                mensagem += `• ${item.quantidade}x ${item.nome} - R$ ${(item.preco * item.quantidade).toFixed(2)}\n`;
-            });
+    let totalPedido = 0;
+    carrinho.forEach(item => {
+        mensagem += `• ${item.quantidade}x ${item.nome} - R$ ${(item.preco * item.quantidade).toFixed(2)}\n`;
+        totalPedido += item.preco * item.quantidade;
+    });
 
-            const numeroWhatsApp = "9295231483"; // Coloque o número do restaurante aqui
-            const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+    // Adicionar o total ao final da mensagem
+    mensagem += `\n🛒 Total: R$ ${totalPedido.toFixed(2)}`;
 
-            window.open(url, "_blank");
-        }
+    const numeroWhatsApp = "9295231483"; // Coloque o número do restaurante aqui
+    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+    window.open(url, "_blank");
+}
+
+        // Função para iniciar o catálogo
+        function iniciarCatalogo() {
+    nomeCliente = document.getElementById("nome").value.trim();
+    enderecoCliente = document.getElementById("endereco").value.trim();
+    telefoneCliente = document.getElementById("telefone").value;
+    pagamentoCliente = document.getElementById("pagamento").value;
+
+    if (!nomeCliente || !enderecoCliente || !pagamentoCliente) {
+        alert("Por favor, preencha todos os campos antes de continuar.");
+        return;
+    }
+
+    document.getElementById("form-container").classList.add("hidden");
+    document.getElementById("catalog-container").classList.remove("hidden");
+
+    carregarProdutos(); // Aqui estava o erro, pois a função não estava sendo chamada corretamente
+}
+        // Função para carregar os produtos no catálogo
+        function carregarProdutos() {
+    console.log("Executando carregarProdutos()");
+
+    const catalog = document.getElementById("catalog");
+
+    if (!catalog) {
+        console.error("Elemento #catalog não encontrado!");
+        return;
+    }
+
+    catalog.innerHTML = ""; // Limpa antes de carregar os produtos
+
+    if (produtos.length === 0) {
+        console.warn("Nenhum produto encontrado!");
+    }
+
+    produtos.forEach(produto => {
+        console.log("Adicionando produto:", produto.nome);
+
+        catalog.innerHTML += `
+            <div class="product">
+                <img src="${produto.img}" alt="${produto.nome}">
+                <h3>${produto.nome}</h3>
+                <p><strong>Acompanhamentos:</strong> ${produto.acompanhamentos}</p>
+                <p>R$ ${produto.preco.toFixed(2)}</p>
+                <button class="btn" onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao Carrinho</button>
+            </div>
+        `;
+    });
+}
+        // Adicionar eventos para os checkboxes de extras
+        document.getElementById("vatapa").addEventListener("change", adicionarExtrasAoCarrinho);
+        document.getElementById("vinagrete").addEventListener("change", adicionarExtrasAoCarrinho);
+        document.getElementById("farofa").addEventListener("change", adicionarExtrasAoCarrinho);
+        document.getElementById("pao").addEventListener("change", adicionarExtrasAoCarrinho);
+    
     </script>
-
 </body>
 </html>
