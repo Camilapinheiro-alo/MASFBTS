@@ -119,7 +119,7 @@
                 <label><input type="checkbox" id="farofa" onchange="calcularTotal()"> Farofa</label>
             </div>
             <div class="item">
-                <label><input type="checkbox" id="pao" onchange="calcularTotal()"> Pão</label>
+                <label><input type="checkbox" id="baiao" onchange="calcularTotal()"> Baião</label>
             </div>
             <h3>Total de Extra: R$ <span id="total-extras">0,00</span></h3>
         </div>
@@ -181,9 +181,9 @@
                     carrinho.push({ id: 'farofa', nome: 'Farofa', preco: precoextra, quantidade: 1 });
                 }
             }
-            if (document.getElementById("pao").checked) {
-                if (!carrinho.some(item => item.id === 'pao')) {
-                    carrinho.push({ id: 'pao', nome: 'Pão', preco: precoextra, quantidade: 1 });
+            if (document.getElementById("baiao").checked) {
+                if (!carrinho.some(item => item.id === 'baiao')) {
+                    carrinho.push({ id: 'baiao', nome: 'Baião', preco: precoextra, quantidade: 1 });
                 }
             }
             atualizarCarrinho();
@@ -218,7 +218,7 @@
             // Percorre os itens do carrinho para calcular os totais
             carrinho.forEach(item => {
                 total += item.preco * item.quantidade;
-                if (item.id === 'vatapa' || item.id === 'vinagrete' || item.id === 'farofa' || item.id === 'pao') {
+                if (item.id === 'vatapa' || item.id === 'vinagrete' || item.id === 'farofa' || item.id === 'baiao') {
                     totalExtrasValor += item.preco * item.quantidade;
                 }
                 cartItems.innerHTML += `
@@ -325,7 +325,7 @@
         document.getElementById("vatapa").addEventListener("change", adicionarExtrasAoCarrinho);
         document.getElementById("vinagrete").addEventListener("change", adicionarExtrasAoCarrinho);
         document.getElementById("farofa").addEventListener("change", adicionarExtrasAoCarrinho);
-        document.getElementById("pao").addEventListener("change", adicionarExtrasAoCarrinho);
+        document.getElementById("baiao").addEventListener("change", adicionarExtrasAoCarrinho);
     
     </script>
 </body>
